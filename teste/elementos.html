@@ -8,36 +8,76 @@
     <p class="info">Era uma vez...</p>
     <script>
 
-        class Aviao {
+    class Pessoa {
 
-            constructor(nome) {
-                this._nome = nome;
-            }
-
-            voa() {
-                alert(`${this._nome} está voando`);
-            }
-
-            ligaMotor() {
-                console.log('liga o motor');
-            }
-
-            fechaPortas() {
-                console.log('Portas sendo fechadas');
-            }
+        constructor(nome) {
+            this._nome = nome;
         }
 
-        class Passarinho {
-
-            constructor(nome) {
-                this._nome = nome;
-            }
-
-            voa() {
-                // executa o método `voa` de `Avião` usando como contexto a instância de `Passarinho`
-                Reflect.apply(Aviao.prototype.voa, this, []);
-            }
+        get nome() {
+            return this._nome;
         }
+
+        set nome(nome) {
+            this._nome = nome;
+        }
+
+        grita(frase) {
+            return `${this._nome} grita ${frase}`;
+        }
+    }
+
+    let pessoa = new Proxy(new Pessoa('Barney'), {
+
+            get(target, prop, receiver) {
+                if(prop == 'grita' && typeof(target[prop]) == typeof(Function)) {
+
+                    return function() {
+                        console.log(`Interceptei o método: ${prop}, por isso estou exbindo essa mensagem!`);    
+                        Reflect.apply(target[prop], target, arguments);       
+                    }
+                }
+                return Reflect.get(target, prop, receiver);
+            }
+        });
+
+    console.log(pessoa.grita('Olá'));
+
+        // class Funcionario {
+
+        //     constructor(email) {
+        //         this._email = email;
+        //     }
+
+        //     get email() {
+        //         return this._email;
+        //     }
+
+        //     set email(email) {
+        //         this._email = email;
+        //     }
+
+        //     exibeNomeCompleto(nome, sobrenome){
+        //         console.log(`${arguments[0]} ${arguments[1]}`);
+        //     }
+        // }
+
+        // let funcionario = new Proxy(new Funcionario(), {
+        //     get(target, prop, receiver){
+        //         console.log("armadilha aqui");
+        //         return Reflect.get(target, prop, receiver);
+        //     },
+        //     set(target, prop, value, receiver){
+        //         console.log(`valor antigo da propriedade ${prop}: ${target[prop]} valor novo: ${value}`);
+        //         return Reflect.set(target, prop, value, receiver);
+        //     }
+        // });
+
+        // funcionario.email = 'mail@test.com';
+        // console.log(funcionario.email);
+        // funcionario.email = 'mail@test2.com';
+
+        // funcionario.exibeNomeCompleto('Ricardo', 'Rodrigues');
 
     </script>
 </body>
