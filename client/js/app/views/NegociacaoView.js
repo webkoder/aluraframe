@@ -19,7 +19,7 @@ class NegociacaoView extends View{
             <tfoot>
                 <tr>
                     <td colspan='3'></td>
-                    <td>${lista.listaNegociacao.reduce((total, n) => total + n.volume, 0)}</td>
+                    <td>${lista.volumeTotal()}</td>
                 </tr>
             </tfoot>
         </table>`;

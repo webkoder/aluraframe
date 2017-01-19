@@ -16,4 +16,8 @@ class ListaNegociacao{
         return [].concat(this._listaNegociacao);
     }
 
+    volumeTotal(){
+        return this._listaNegociacao.reduce((total, n) => total + n.volume, 0);
+    }
+
 }
