@@ -7,8 +7,9 @@ class NegociacaoController{
         this.inputData = $("#data");
         this.inputQuantidade = $("#quantidade");
         this.inputValor = $("#valor");
+        this._ordemAtual = '';
         
-        this._lista = new Bind(new ListaNegociacao(), new NegociacaoView($('#negociacaoView')), 'adiciona', 'esvaziar');
+        this._lista = new Bind(new ListaNegociacao(), new NegociacaoView($('#negociacaoView')), 'adiciona', 'esvaziar', 'ordena', 'inverte');
 
         this._mensagem = new Bind(new Mensagem(), new MensagemView($('#mensagemView')), 'texto');
 
@@ -17,7 +18,12 @@ class NegociacaoController{
     adicionar(event){
         event.preventDefault();
 
+        try{
         this._lista.adiciona(this._criaNegociacao());
+        }catch(erro){
+            this._mensagem.texto = 'A data é inválida';
+            return;
+        }
         this._limpaFormulario();
         
         this._mensagem.texto = 'Negociação adicionada com sucesso';
@@ -28,6 +34,15 @@ class NegociacaoController{
     apagar(){
         this._lista.esvaziar();
         this._mensagem.texto = 'Lista de negociação removida';
+    }
+
+    ordena(coluna){
+        if(this._ordemAtual == coluna){
+            this._lista.inverte();
+        }else{
+            this._lista.ordena(coluna);
+        }
+        this._ordemAtual = coluna;
     }
 
     importarNegociacoes(){

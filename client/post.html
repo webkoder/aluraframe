@@ -29,7 +29,7 @@
         <button class="btn btn-primary" type="submit" onclick="sendPost(event)">Enviar dados para servidor</button>
         <!--<button class="btn btn-primary" type="submit">Enviar dados para servidor</button>-->
     </form>
-
+    <script src="js/app/services/HttpService.js"></script>
     <script>
 
         function sendPost(event) {
@@ -37,25 +37,16 @@
             event.preventDefault();
             console.log("Enviando post");
 
-            let xhr = new XMLHttpRequest();
+            
             let dados = {
                 data : document.querySelector("#data").value,
                 quantidade : document.querySelector("#quantidade").value,
                 valor : document.querySelector("#valor").value
             };
-            xhr.open('POST', '/negociacoes', true);
-            xhr.setRequestHeader("Content-type", "application/json");
-            
-            xhr.onreadystatechange = () => {
-                if(xhr.readyState == 4){
-                    if(xhr.status = 200){
-                        console.log("gravado");
-                    }else{
-                        console.log('erro na gravação');
-                    }
-                }
-            }
-            xhr.send(JSON.stringify(dados));
+            new HttpService().post('/negociacodes', dados)
+            .then(resposta => console.log(resposta))
+            .catch(resposta => console.log(resposta));
+
 
         }
     </script>

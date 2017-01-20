@@ -7,11 +7,21 @@ class DateHelper{
 
     static textoParaData(texto){
 
+        let isInputText = false;
         if(!/\d{4}-\d{2}-\d{2}/.test(texto)){
-            throw new Error('O formato da data é inválida');
+            if(!/\d{2}\/\d{2}\/\d{4}/.test(texto)){
+                throw new Error('O formato da data é inválida');
+            }else{
+                isInputText = true;
+            }
+            
         }
 
-        texto = texto.split('-');
+        if(isInputText){
+            texto = texto.split('/');
+            texto.reverse();
+        }else
+            texto = texto.split('-');
         texto[1]--;
         return new Date(...texto);
     }
