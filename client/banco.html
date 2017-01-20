@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    
+    <script src="js/app/models/Negociacao.js"></script>
+    <script>
+    
+    var conn;
+
+    var openRequest = window.indexedDB.open('aluraframe', 2);
+
+    openRequest.onupgradeneeded = e => {
+
+        let minhaConexao = e.target.result;
+
+        if(minhaConexao.objectStoreNames.contains('negociacao')){
+            minhaConexao.deleteObjectStore('negociacao');
+        }
+        minhaConexao.createObjectStore('negociacao', { autoIncrement : true});
+    };
+
+    openRequest.onsuccess = e => {
+        console.log("conectado ao banco");
+        conn = e.target.result;
+    };
+
+
+    openRequest.onerror = e => {
+        console.log("erro ao abrir o banco");
+        console.log(e.target.error);
+    }
+
+    function adiciona(){
+
+        let transaction = conn.transaction(['negociacao'], 'readwrite');
+        let store = transaction.objectStore('negociacao');
+
+        let negociacao = new Negociacao(new Date(), 4, 44);
+
+        let request = store.add(negociacao);
+
+        request.onsuccess = e => { console.log('Adicionado com sucesso') };
+        request.onerror = e => { console.log(e.target.error) };
+
+    }
+
+    function listaTodos(){
+        let transaction = conn.transaction(['negociacao'], 'readwrite');
+        let store = transaction.objectStore('negociacao');
+
+        let cursor = store.openCursor();
+        let negociacoes = [];
+
+        cursor.onsuccess = e => { 
+            let atual = e.target.result;
+
+            if(atual){
+                let dado = atual.value;
+                negociacoes.push(new Negociacao(dado._data, dado._quantidade, dado._valor)); 
+                atual.continue();
+            }else{
+                console.log(negociacoes);
+            }
+         };
+
+        cursor.onerror = e => { console.log(e.target.error.name) };
+    }
+
+
+
+    </script>
+</body>
+</html>
