@@ -43,7 +43,7 @@
                 quantidade : document.querySelector("#quantidade").value,
                 valor : document.querySelector("#valor").value
             };
-            new HttpService().post('/negociacodes', dados)
+            new HttpService().post('/negociacoes', dados)
             .then(resposta => console.log(resposta))
             .catch(resposta => console.log(resposta));
 

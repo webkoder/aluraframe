@@ -40,4 +40,17 @@ class NegociacaoService{
         .catch(erro =>  { return erro });
     }
 
+    cadastrar(negociacao){
+        return new Promise( (resolve, reject) => {
+
+            ConnectionFactory.getConnection()
+            .then(connection => new NegociacaoDao(connection))
+            .then(dao => dao.adiciona(negociacao))
+            .then( resolve('Negociação adicionada com sucesso') )
+            .catch( reject('Erro ao gravar os dados') );
+
+        } );
+            
+    }
+
 }

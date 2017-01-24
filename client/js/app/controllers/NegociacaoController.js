@@ -13,6 +13,11 @@ class NegociacaoController{
 
         this._mensagem = new Bind(new Mensagem(), new MensagemView($('#mensagemView')), 'texto');
 
+        this._init();
+    }
+
+    _init(){
+        
         ConnectionFactory.getConnection()
             .then(connection => new NegociacaoDao(connection))
             .then(dao => dao.listaTodos())
@@ -22,24 +27,26 @@ class NegociacaoController{
                 this._mensagem.texto = erro;
             });
 
+            // setInterval(() => {
+            //     console.log('importando a negociacao');
+            //     this.importarNegociacoes();
+            // }, 3000);
+
     }
     
     adicionar(event){
         event.preventDefault();
 
-        ConnectionFactory.getConnection()
-        .then(connection => {
-            let negociacao = this._criaNegociacao();
+        let negociacao = this._criaNegociacao();
 
-            new NegociacaoDao(connection)
-                .adiciona(negociacao)
-                .then(() => {
-                    this._lista.adiciona(negociacao);
-                    this._mensagem.texto = 'Negociação adicionada com sucesso';
-                    this._limpaFormulario();
-                })
-                .catch(erro => this._mensagem.texto = 'A data é inválida');
-            });
+        new NegociacaoService()
+            .cadastrar(negociacao)
+            .then(mensagem => {
+                this._mensagem.texto = mensagem;
+                this._lista.adiciona(negociacao);
+                this._limpaFormulario();
+            })
+            .catch(erro => this._mensagem.texto = erro);
     }
 
     apagar(){
@@ -68,6 +75,10 @@ class NegociacaoController{
 
     importarNegociacoes(){
         let service = NegociacaoService.obterNegociacoes()
+            // .then(lista => lista.filter(negociacao => !this._lista.ListaNegociacao.some(negociacaoExistente => JSON.stringify(negociacao) == JSON.stringfy(negociacaoExistente) ) ) )
+            .then(lista => lista.filter(negociacao => {
+                return !this._lista.listaNegociacao.some(negociacaoExistente => JSON.stringify(negociacao) == JSON.stringify(negociacaoExistente)) ;
+            } ) )
             .then(lista => lista.forEach( n => this._lista.adiciona(n)) )
             .catch(erro => this._mensagem.texto = erro);
     }
