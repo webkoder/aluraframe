@@ -27,6 +27,7 @@ class DateHelper{
     }
 
     static dataParaTexto(data){
+        // if(!data) return '';
         return `${data.getDate()}/${data.getMonth() + 1}/${data.getFullYear()}`;
     }
 }

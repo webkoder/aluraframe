@@ -13,26 +13,47 @@ class NegociacaoController{
 
         this._mensagem = new Bind(new Mensagem(), new MensagemView($('#mensagemView')), 'texto');
 
+        ConnectionFactory.getConnection()
+            .then(connection => new NegociacaoDao(connection))
+            .then(dao => dao.listaTodos())
+            .then(lista => lista.forEach(n => this._lista.adiciona(n) ))
+            .catch(erro => {
+                console.log(erro);
+                this._mensagem.texto = erro;
+            });
+
     }
     
     adicionar(event){
         event.preventDefault();
 
-        try{
-        this._lista.adiciona(this._criaNegociacao());
-        }catch(erro){
-            this._mensagem.texto = 'A data é inválida';
-            return;
-        }
-        this._limpaFormulario();
-        
-        this._mensagem.texto = 'Negociação adicionada com sucesso';
-        
-        console.log(this._lista);
+        ConnectionFactory.getConnection()
+        .then(connection => {
+            let negociacao = this._criaNegociacao();
+
+            new NegociacaoDao(connection)
+                .adiciona(negociacao)
+                .then(() => {
+                    this._lista.adiciona(negociacao);
+                    this._mensagem.texto = 'Negociação adicionada com sucesso';
+                    this._limpaFormulario();
+                })
+                .catch(erro => this._mensagem.texto = 'A data é inválida');
+            });
     }
 
     apagar(){
-        this._lista.esvaziar();
+
+        ConnectionFactory.getConnection()
+            .then(connection => new NegociacaoDao(connection))
+            .then(dao => dao.apagaTodos())
+            .then(msg => {
+                this._lista.esvaziar();
+                this._mensagem.texto = msg;
+            })
+            .catch(msg => this._mensagem.texto = msg);
+
+        
         this._mensagem.texto = 'Lista de negociação removida';
     }
 
@@ -54,8 +75,8 @@ class NegociacaoController{
     _criaNegociacao(){
         return new Negociacao(
             DateHelper.textoParaData(this.inputData.value),
-            this.inputQuantidade.value,
-            this.inputValor.value
+            parseInt(this.inputQuantidade.value),
+            parseFloat(this.inputValor.value)
         );
     }
 
