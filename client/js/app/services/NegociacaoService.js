@@ -27,13 +27,12 @@ class NegociacaoService{
             .catch(erro => { throw new Error('Erro ao importar lista de negociação da semana retrasada')} );   
     }
 
-    static obterNegociacoes(){
-        let service = new NegociacaoService();
+    obterNegociacoes(){
         return Promise.all(
             [
-                service.obterNegociacoesDaSemana(),
-                service.obterNegociacoesDaSemanaAnterior(),
-                service.obterNegociacoesDaSemanaRetrasada()
+                this.obterNegociacoesDaSemana(),
+                this.obterNegociacoesDaSemanaAnterior(),
+                this.obterNegociacoesDaSemanaRetrasada()
             ]
         )
         .then(lista => { return lista.reduce( (novo, item) => novo.concat(item), [] ) })
@@ -41,16 +40,38 @@ class NegociacaoService{
     }
 
     cadastrar(negociacao){
-        return new Promise( (resolve, reject) => {
-
-            ConnectionFactory.getConnection()
-            .then(connection => new NegociacaoDao(connection))
-            .then(dao => dao.adiciona(negociacao))
-            .then( resolve('Negociação adicionada com sucesso') )
-            .catch( reject('Erro ao gravar os dados') );
-
-        } );
+        return ConnectionFactory.getConnection()
+        .then(connection => new NegociacaoDao(connection))
+        .then(dao => dao.adiciona(negociacao))
+        .then( () => 'Negociação adicionada com sucesso')
+        .catch( () => 'Erro ao gravar os dados' );
             
+    }
+
+    lista(){
+        return ConnectionFactory.getConnection()
+        .then(connection => new NegociacaoDao(connection))
+        .then(dao => dao.listaTodos())
+        .catch(erro => {
+            console.log(erro);
+        });
+    }
+
+    apagaTodas(){
+        return ConnectionFactory.getConnection()
+            .then(connection => new NegociacaoDao(connection))
+            .then(dao => dao.apagaTodos())
+            .then(msg => 'Lista de negociação removida')
+            .catch(msg => msg);
+    }
+
+    importa(listaAtual){
+        return this.obterNegociacoes()
+            .then(lista => lista.filter(negociacao => {
+                return !listaAtual.some(negociacaoExistente =>
+                    negociacao.equals(negociacaoExistente)) ;
+            } ) )
+            .catch(erro => erro);
     }
 
 }
